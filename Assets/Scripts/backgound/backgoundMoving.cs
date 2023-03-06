@@ -14,8 +14,10 @@ public class backgoundMoving : MonoBehaviour
 
     [SerializeField]
     AudioClip clip, clipD;
+
     [SerializeField]
     AudioSource audio;
+
 
     [SerializeField]
     Text text;
@@ -23,32 +25,89 @@ public class backgoundMoving : MonoBehaviour
     [SerializeField]
     Transform player;
 
-    int count = 0;
-    bool Checkcore = true;
+    [SerializeField]
+    GameObject panelGameOver;
+
+    [SerializeField]
+    GameObject chimneies;
+
+
+
+    private int score = 0, best;
+
+    int tempScore;
+
+    private float verticalVelocity = 0f;
+
+
+    bool checkPlayer;
+
+    [SerializeField]
+    Text txtMyCore;
+    [SerializeField]
+    Text txtBest;
+
+    bool start = true;
+
+
+
     // Start is called before the first frame update
     void Start()
     {
-        speed = 0.01f;
+
+        Time.timeScale = 0;
+        Input.simulateMouseWithTouches = true;
+        if (panelGameOver)
+        {
+
+            panelGameOver.active = false;
+        }
+        checkPlayer = true;
+        setScore(0);
+        speed = 0.0f;
+
+
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        Moving();
-        Conllider();
+
+        if (Input.GetMouseButtonDown(0) && start == true)
+        {
+            start = false;
+            speed = 0.022f;
+        }
+
+        if (checkPlayer == true)
+        {
+
+            Moving(speed);
+            Conllider();
+            Score();
+        }
+        else
+        {
+            Death();
+        }
+
 
 
 
     }
 
-    void Moving()
+
+    void Moving(float speed)
     {
         temp = transform.localPosition;
         temp.x = temp.x - speed;
-        if (temp.x <= -16)
+        if (temp.x <= 0)
         {
-            transform.localPosition = new Vector2(18, 0);
-            RandomChimney();
+            i = Random.Range(-1.5f, 1.5f);
+            transform.localPosition = new Vector2(12, i);
+            tempScore = 1;
+     
         }
         else
         {
@@ -56,16 +115,24 @@ public class backgoundMoving : MonoBehaviour
         }
 
     }
-    void RandomChimney()
+
+
+    void Score()
     {
-        if (checkChimney)
+        if (transform.localPosition.x >=6)
         {
-            i = Random.Range(3.0f, -1.0f);
-            Vector2 pos = transform.localPosition;
-            pos.y = i;
-            transform.localPosition = pos;
+            tempScore = 1;
 
+        }
+        else
+        {
 
+            setScore(getScore() + tempScore);
+            ; if (text)
+            {
+                text.text = getScore() + "";
+            }
+            tempScore = 0;
         }
 
     }
@@ -74,19 +141,18 @@ public class backgoundMoving : MonoBehaviour
     {
         if (player)
         {
-            if (transform.localPosition.x <= -8 && transform.localPosition.x >= -10)
+           
+            if (transform.localPosition.x <= 5.6f && transform.localPosition.x >= 4.3f)
             {
                 Debug.Log("đi qua x");
-                if (player.localPosition.y > transform.localPosition.y - 1.2f && player.localPosition.y < transform.localPosition.y + 1.2f)
+                if (player.localPosition.y > transform.localPosition.y - 1.675f && player.localPosition.y < transform.localPosition.y + 1.675f)
                 {
                     Debug.Log("đi qua y");
-                   
-                    if (text ) 
+
+                    if (text)
                     {
                         audio.clip = clip;
                         audio.Play();
-                       
-
                     }
 
                 }
@@ -94,18 +160,32 @@ public class backgoundMoving : MonoBehaviour
                 {
                     audio.clip = clipD;
                     audio.Play();
-                    Time.timeScale = 0;
-             
+
+                    if (panelGameOver)
+                    {
+
+                        panelGameOver.active = true;
+
+                    }
+                    checkPlayer = false;
+
+
+
                 }
 
             }
 
-            if (player.localPosition.y < -2.6f && player.localPosition.y > 4.6f)
+            if (player.localPosition.y < -3.6f && player.localPosition.y > 4.6f)
             {
-                Time.timeScale = 0;
+
                 audio.clip = clipD;
                 audio.Play();
-               
+                if (panelGameOver)
+                {
+                    panelGameOver.active = true;
+                }
+                checkPlayer = false;
+
 
             }
 
@@ -113,5 +193,68 @@ public class backgoundMoving : MonoBehaviour
 
         }
     }
+
+    int getScore()
+    {
+        score = PlayerPrefs.GetInt("score", 0);
+        return score;
+    }
+    void setScore(int score)
+    {
+        PlayerPrefs.SetInt("score", score);
+        PlayerPrefs.Save();
+    }
+
+
+    int GetBest()
+    {
+        int best = PlayerPrefs.GetInt("best", 0);
+        return best;
+    }
+
+    void SetBest()
+    {
+        if (getScore() > GetBest())
+        {
+            PlayerPrefs.SetInt("best", score);
+        }
+        return;
+    }
+
+    void Death()
+    {
+
+        SetBest();
+        setTextGameOver();
+        verticalVelocity -= 6 * Time.deltaTime;
+        Input.simulateMouseWithTouches = false;
+        player.transform.position = new Vector2(player.transform.position.x, Mathf.Clamp(player.transform.position.y + verticalVelocity * Time.deltaTime, player.transform.position.y, 6)); // Cập nhật vị trí của đối tượng
+
+        if (player.transform.localPosition.y <= -3.4)
+        {
+            Time.timeScale = 0;
+        }
+        if ( chimneies)
+        {
+            chimneies.active = false;
+        }    
+        
+
+
+       
+
+
+
+    }
+
+    void setTextGameOver()
+    {
+        if (txtBest && txtMyCore)
+        {
+            txtBest.text = GetBest() + "";
+            txtMyCore.text = getScore() + "";
+        }
+    }
+
 
 }
