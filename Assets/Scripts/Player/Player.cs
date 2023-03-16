@@ -40,7 +40,10 @@ public class Player : MonoBehaviour
         AudioListener.volume = volumn;
 
         //    index = PlayerPrefs.GetInt("bird", 0);
-        index = SaveData.Instance.GetData();
+
+            index = SaveData.Instance.GetData();
+        
+
 
 
         anim.runtimeAnimatorController = controller[index];

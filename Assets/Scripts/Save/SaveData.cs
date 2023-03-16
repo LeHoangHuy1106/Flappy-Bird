@@ -1,12 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.UI;
 public class SaveData : MonoBehaviour
 {
-    private static SaveData instance;
+    private SaveData instance;
 
-    public static SaveData Instance
+
+    public  SaveData Instance
     {
         get { return instance; }
     }
@@ -24,7 +25,7 @@ public class SaveData : MonoBehaviour
     }
 
     // Dữ liệu cần truyền giữa các scene
-    public int dataToTransfer;
+    int dataToTransfer;
 
     // Hàm để lấy dữ liệu
     public int GetData()
@@ -37,4 +38,7 @@ public class SaveData : MonoBehaviour
     {
         dataToTransfer = newData;
     }
+
+
+
 }
